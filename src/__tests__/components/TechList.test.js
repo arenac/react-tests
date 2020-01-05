@@ -1,9 +1,13 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 
 import TechList from '~/components/TechList';
 
 describe('TechList component', () => {
+
+  beforeEach(() => {
+    localStorage.clear();
+  });
   
   it('should be able to add new tech', () => {
     const { getByText, getByTestId, debug, getByLabelText } = render(<TechList />);
@@ -14,4 +18,19 @@ describe('TechList component', () => {
     expect(getByTestId('tech-list')).toContainElement(getByText('Node.js'));
     expect(getByLabelText('Tech')).toHaveValue('');
   });
+
+  it('shold sotore techs in storage', () => {
+    let { getByLabelText, getByTestId, getByText } = render(<TechList />);
+
+    fireEvent.change(getByLabelText('Tech'), { target: { value: 'Node.js'}});
+    fireEvent.submit(getByTestId('tech-form'));
+
+    cleanup();
+
+    ({ getByLabelText, getByTestId, getByText } = render(<TechList />));
+    
+    expect(localStorage.setItem).toHaveBeenCalledWith('techs', JSON.stringify(['Node.js']));
+    expect(getByTestId('tech-list')).toContainElement(getByText('Node.js'));
+
+  })
 });
