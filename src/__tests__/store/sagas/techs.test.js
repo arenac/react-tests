@@ -18,4 +18,14 @@ describe('Techs sagas', () => {
 
     expect(dispatch).toHaveBeenCalledWith(getTechsSuccess(['Node.js']));
   });
+
+  it('should fail when api returns error', async () => {
+    const dispatch = jest.fn();
+
+    apiMock.onGet('techs').reply(500);
+
+    await runSaga({ dispatch }, getTechs).toPromise();
+
+    expect(dispatch).toHaveBeenCalledWith(getTechsFailure());
+  });
 });
